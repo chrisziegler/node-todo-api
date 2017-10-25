@@ -4,16 +4,20 @@ const request = require('supertest');
 const {app} = require ('./../server');
 const {Todo} = require('./../models/todo')
 
-//lifecycle method
+const todos =[{
+    text: 'First test todo'
+}, {
+    text: 'Second test todo'
+}];
+
 beforeEach((done) => {
-    //similiar to the MongoDB native method
-    //passing in an empty object
-    Todo.remove({}).then(() => done());
+    Todo.remove({}).then(() => {
+        return Todo.insertMany(todos)
+        .then(() => done());
+    });
 });
 
 describe('POST /todos', () => {
-    //test the posting and response to our server with
-    //an async test
     it('should create a new todo', (done) => {
         var text = 'Test todo text';
  
@@ -32,7 +36,7 @@ describe('POST /todos', () => {
             }
             //similiar to the MongoDB native find method
             //returns our todos collection - an array of objects with one document in it
-            Todo.find().then((todos) => {
+            Todo.find({text}).then((todos) => {
                 expect(todos.length).toBe(1);
                 //expect the todos text property toBe the text variable above
                 //{ text: 'Test todo text' }
@@ -53,9 +57,21 @@ describe('POST /todos', () => {
             }
 
             Todo.find().then((todos) => {
-                expect(todos.length).toBe(0);
+                expect(todos.length).toBe(2);
                 done();
             }).catch((e) => done(e))
         })
     })
+});
+
+describe('GET /todos', () => {
+    it('should  Get all todos', (done) => {
+        request(app)
+        .get('/todos')
+        .expect(200)
+        .expect((res) => {
+            expect(res.body.todos.length).toBe(2);
+        })
+        .end(done); 
+    });
 });
