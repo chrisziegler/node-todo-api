@@ -4,6 +4,7 @@ const request = require('supertest');
 const {app} = require ('./../server');
 const {Todo} = require('./../models/todo')
 
+//lifecycle method
 beforeEach((done) => {
     //similiar to the MongoDB native method
     //passing in an empty object
@@ -15,7 +16,7 @@ describe('POST /todos', () => {
     //an async test
     it('should create a new todo', (done) => {
         var text = 'Test todo text';
-
+ 
         request(app)
         .post('/todos')
         .send({text})
@@ -50,7 +51,7 @@ describe('POST /todos', () => {
             if (err) {
                 return done(err);
             }
-            
+
             Todo.find().then((todos) => {
                 expect(todos.length).toBe(0);
                 done();
