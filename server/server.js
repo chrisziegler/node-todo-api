@@ -53,8 +53,23 @@ app.get('/todos/:id', (req, res) => {
             res.send({todo});
             //other errors handling
         }, (e) => res.status(400).send());
-
 });
+
+app.delete('/todos/:id', (req, res) => {
+    let id = req.params.id;
+    if (!ObjectID.isValid(id)) {
+        //not even ObjectId syntax e.g. 123
+        return res.status(404).send();
+    }
+
+    Todo.findByIdAndRemove(id).then((todo) => {
+        if (!todo) {
+            return res.status(404).send();
+        }
+        res.send({todo});
+    }, (e) => res.status(404).send());
+});
+
 
 
 app.listen(port, () => {
