@@ -3,7 +3,11 @@ var mongoose = require('mongoose');
 
 //use standard built-in ES6 Promises
 mongoose.Promise = global.Promise;
-// path/ip uses MONGODB_URI if provided in process.env - will shutdown local mongodb server on init
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/TodoApp');
 
-module.exports = { mongoose };
+//we repurpose MONGODB_URI for local environments in db/config
+//with NODE_ENV = production set by heroku - config.js environments ignored in production
+//MONGODB_URI set configured with mLabs addon to heroku
+//check address on process.env or $ heroku config
+mongoose.connect(process.env.MONGODB_URI);
+
+module.exports = { mongoose }
