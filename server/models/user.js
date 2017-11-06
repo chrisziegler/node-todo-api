@@ -52,23 +52,48 @@ UserSchema.methods.generateAuthToken = function () {
     // will eventually take this secret out of the code and assign it a configuration
     // variable
     let token = jwt.sign({
-        _id: user
-            ._id
-            .toHexString(),
+        _id: user._id.toHexString(),
         access
     }, 'abc123').toString();
 
     //update the local model
     user
-        .tokens
-        .push({access, token})
+        .tokens.push({access, token})
     // save it, return it to allow server.js to chain on this promise with a then
     // statement on the token it returns
-    return user
-        .save()
-        .then(() => {
+    return user.save().then(() => {
             return token;
         })
+};
+//statics kind of like methods only creates a model method
+//instead of an instance. Instance methods get called with the indivudual
+//user document. Model methods get called with the Model User "this" binding
+UserSchema.statics.findByToken = function(token) {
+    let User = this;
+    var decoded;
+
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (e) {
+        //this Promise would get returned by findByToken
+        //over inside of server it will get rejected
+        //so our then success case will never fire
+        //our catch there will though
+        // return new Promise((resolve, reject) => {
+        //     reject();
+        // })
+        return Promise.reject();
+    }
+    //success case
+    return User.findOne({
+        '_id': decoded._id,
+        //to query a nested document we need quotes on the key
+        //to make the key dyanmic bracket syntax style, since the dot
+        //notation would not be a valid key name
+        'tokens.token': token,
+        'tokens.access': 'auth'
+
+    })
 };
 
 var User = mongoose.model('User', UserSchema);
