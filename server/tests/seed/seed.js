@@ -13,10 +13,7 @@ const users = [{
     password: 'userOnePass',
     tokens: [{
         access: 'auth',
-        //we do need to reference _id inside this call
-        //since its provided right here we need to make that 
-        //a seperate variable outside this users array
-        //no idea why we don't need to use .toHexString() on it here
+       //required storing ids outside array to access value below
         token: jwt.sign({_id: userOneId, access: 'auth'}, 'abc123').toString()
     }]
 }, {
@@ -41,19 +38,14 @@ const populateTodos = (done) => {
     }).then(() => done());
 };
 
-//need to populate Users but can't use insetMany()
-//which wont run on middleware needed to hash passwords
-//so that method would store plain text passwords in seeded db
+//the insertMany() method used in populateTodos won't run on middleware
+//needed to hash psswds. Promises used instead.
 const populateUsers = (done) => {
     User.remove({}).then(() => {
-        //create 2 promises
-        //and by using save() we will be using middleware
+        //create 2 promises - save() we will be using middleware
         let userOne = new User(users[0]).save();
         let userTwo = new User(users[1]).save();
         //wait for both of them to succeed
-        //this then callback will not get called
-        //until all promises resolved
-        //we return it to chain on then => done()
         return Promise.all([userOne, userTwo])
     }).then(() => done());
 };
