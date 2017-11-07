@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 var UserSchema = new mongoose.Schema({
     email: {
@@ -75,26 +76,34 @@ UserSchema.statics.findByToken = function(token) {
     try {
         decoded = jwt.verify(token, 'abc123');
     } catch (e) {
-        //this Promise would get returned by findByToken
-        //over inside of server it will get rejected
-        //so our then success case will never fire
-        //our catch there will though
-        // return new Promise((resolve, reject) => {
-        //     reject();
-        // })
         return Promise.reject();
     }
-    //success case
+
     return User.findOne({
+        //to query a nested document w/dot notation we need quotes on the key
         '_id': decoded._id,
-        //to query a nested document we need quotes on the key
-        //to make the key dyanmic bracket syntax style, since the dot
-        //notation would not be a valid key name
         'tokens.token': token,
         'tokens.access': 'auth'
-
     })
 };
+
+//will run some code before a given event (save) to the db
+UserSchema.pre('save', function (next) {
+    let user = this;
+
+    //we only want to encrypt password if it was just modified
+    if (user.isModified('password')) {
+        bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(user.password, salt, (err, hash) => {
+                user.password = hash;
+                next();
+            });
+        });
+
+    } else {
+        next();
+    }
+});
 
 var User = mongoose.model('User', UserSchema);
 

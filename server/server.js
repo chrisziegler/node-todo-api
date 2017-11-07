@@ -7,13 +7,13 @@ const _ = require('lodash');
 
 //note we don't use the mongoose variable anywhere in server, importing that file alone
 //is what initializes the connection with MongoDB and configures mongoose. 
-var {mongoose} = require('./db/mongoose');
-var {Todo} = require('./models/todo');
-var {User} = require('./models/user');
-var {authenticate} = require('./middleware/authenticate');
+const {mongoose} = require('./db/mongoose');
+let {Todo} = require('./models/todo');
+let {User} = require('./models/user');
+const {authenticate} = require('./middleware/authenticate');
 
 
-var app = express();
+const app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
@@ -114,24 +114,6 @@ app.post('/users', (req, res) => {
         res.status(400).send(e);
     })
 });
-
-var authenticate = (req, res, next) => {
-    var token = req.header('x-auth');
-    User.findByToken(token).then((user) => {
-        if (!user) {
-            return Promise.reject();
-        }
-        //once we have rew modified we can use it in each of our routes
-        req.user = user;
-        req.token = token;
-        //middleware - always call next if you want code below it to run
-        next();
-    }).catch((e) => {
-        res.status(401).send();
-        //here we don't run next because we don't want to run routes
-        //if authentification failed for some reason
-    });
-}
 
 //first private route
 app.get('/users/me', authenticate, (req, res) => {
