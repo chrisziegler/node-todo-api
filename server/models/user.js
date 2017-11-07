@@ -40,7 +40,7 @@ var UserSchema = new mongoose.Schema({
 
 UserSchema.methods.toJSON = function () {
     //just a way to make it easier to reason about "this"
-    var user = this;
+    let user = this;
     //converts our mongoose object (this) into a regualr JS object
     //where only the properties available on the document exist
     var userObject = user.toObject();
@@ -52,14 +52,9 @@ UserSchema.methods.generateAuthToken = function () {
     let access = 'auth';
     // will eventually take this secret out of the code and assign it a configuration
     // variable
-    let token = jwt.sign({
-        _id: user._id.toHexString(),
-        access
-    }, 'abc123').toString();
-
+    let token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
     //update the local model
-    user
-        .tokens.push({access, token})
+    user.tokens.push({access, token})
     // save it, return it to allow server.js to chain on this promise with a then
     // statement on the token it returns
     return user.save().then(() => {
