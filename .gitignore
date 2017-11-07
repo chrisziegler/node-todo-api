@@ -13,6 +13,7 @@ node_modules/
 bak
 app-env
 .tmp/
+server/server-bak-preAuth.js
 
 # OS or Editor folders
 .DS_Store
