@@ -4,12 +4,12 @@ const {ObjectID} = require('mongodb');
 const _ = require('lodash');
 
 const {app} = require ('./../server');
-const {Todo} = require('./../models/todo')
+const {Todo} = require('./../models/todo');
+const {User} = require('./../models/user');
 const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
 beforeEach(populateUsers);
 beforeEach(populateTodos);
-
 
 describe('POST /todos', () => {
     it('should create a new todo', (done) => {
@@ -69,7 +69,6 @@ describe('GET /todos', () => {
         .end(done); 
     });
 });
-
 
 describe('GET /todos/:id', () => {
     it('should return todo doc', (done) => {
@@ -171,4 +170,84 @@ describe('PATCH /todos/:id', () => {
         .end(done);  
     });
 });
+describe('GET /users/me', () => {
+//2 assertions that when we provide a valid token we get valid data back
+    it('should return a user if authenticated', (done) => {
+        request(app)
+        .get('/users/me')
+        //new method that sets the header
+        .set('x-auth', users[0].tokens[0].token)
+        .expect(200)
+        //this should be the case when we're fetching a user
+        //the id/email that comes back in the body should be the 
+        //id/email of the user whose token we supplied
+        .expect((res) => {
+            expect(res.body._id).toBe(users[0]._id.toHexString());
+            expect(res.body.email).toBe(users[0].email)
+        })
+        .end(done);
+    });
+    
+    it('should return a 401 if not authenticated', (done) => {
+        request(app)
+        .get('/users/me')
+        .expect(401)
+        .expect((res) => {
+            expect(res.body).toEqual({});
+        })
+        .end(done);
+    });
+});
 
+describe('Post /users', () => {
+    it('should create a user', (done) => {
+        let email = 'example@example.com';
+        let password = 'hunter2';
+
+        request(app)
+        .post('/users')
+        .send({email, password})
+        .expect(200)
+        .expect((res) => {
+            //hyphen in dot notation would be invalid
+            expect(res.headers['x-auth']).toExist();
+            expect(res.body._id).toExist();
+            expect(res.body.email).toBe(email);
+            //custom end function to query db and make assertions about User doc
+        }).end((err) => {
+            if (err) {
+                return done(err);
+            }
+            //find a user where the email: email (the one above)
+            User.findOne({email}).then((user) => {
+                expect(user).toExist();
+                //password should now be hashed in TodoAppTest db
+                expect(user.password).toNotBe(password);
+                done();
+            })
+        });
+    });
+
+    it('should return validation errors if request invalid', (done) => {
+        request(app)
+        .post('/users')
+        .send({
+            email: 'example@example',
+            password: '123'
+        })
+        .expect(400)
+        .end(done);
+    });
+
+    it('should not create user if email is in use', (done) => {
+        //an email thats automatically seeded BeforeEach test
+        request(app)
+        .post('/users')
+        .send({
+            email: users[0].email,
+            password: 'hunter2'
+        })
+        .expect(400)
+        .end(done)
+    })
+});
