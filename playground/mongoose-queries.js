@@ -16,7 +16,7 @@ if (!ObjectID.isValid(id) || !ObjectID.isValid(userId)) {
 //         console.log('Todos: ', todos);
 //     });
 
-// //nearly identical syntax to find()
+// //findOne - nearly identical syntax to find()
 // Todo.findOne({_id: id})
 //     .then((todo) => {
 //         console.log('Todo: ', todo);

@@ -48,6 +48,7 @@ UserSchema.methods.toJSON = function () {
 };
 
 UserSchema.methods.generateAuthToken = function () {
+    //the user Object called  in POST /users route
     let user = this;
     let access = 'auth';
     // will eventually take this secret out of the code and assign it a configuration
@@ -79,6 +80,34 @@ UserSchema.statics.findByToken = function(token) {
         '_id': decoded._id,
         'tokens.token': token,
         'tokens.access': 'auth'
+    })
+};
+
+UserSchema.statics.findByCredentials = function(email, password) {
+    let User = this;
+
+    //a mongoodse method - set an email property equal to email variable
+    //we will be chaining this in server.js - so need to return promise
+    //but there's still work to be done (then) verifying the psswd matches
+    return User.findOne({email}).then((user) => {
+        //if we don't find a user we want to do something different
+        if (!user) {
+            //return rejected promise to trigger catch case in server.js
+            return Promise.reject();
+        }
+        //unfortunately all of bcrypts methods including
+        //bcrypt.compare() only support callbacks and do not support promises
+        //but we can WRAP any type of function INSIDE a promise
+        return new Promise((resolve, reject) => {
+            //res is either true or false, true if they match
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (result) {
+                    resolve(user);
+                } else {
+                    reject();
+                }
+            })
+        }) 
     })
 };
 
