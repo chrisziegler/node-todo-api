@@ -304,3 +304,28 @@ describe('POST /users/login', () => {
         });
     });
 });
+
+describe('DELETE /users/me/token', () => {
+    it('should remove auth token on logout', (done) => {
+        request(app)
+        //running our route in server.js -should remove token
+        .delete('/users/me/token')
+        //tokens IS an array, only 1 object in it for now
+        //loging-out requires that being logged-in, provide a token from seed data
+        .set('x-auth', users[0].tokens[0].token)
+        //finished with making request - set only sets the header to be sent
+        //expect our delete request to have been succesful
+        .expect(200)
+        //add a custom end function to return proper error  AND run a callback 
+        //to find user before making the next assertion that token removed from db
+        .end((err, res) => {
+            if (err) {
+                return done(err);
+            }
+            User.findById(users[0]._id).then((user) => {
+                expect(user.tokens.length).toBe(0);
+                done();
+            }).catch((e) => done(e));
+        });
+    })
+})
