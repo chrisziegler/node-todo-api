@@ -38,6 +38,7 @@ var UserSchema = new mongoose.Schema({
     ]
 });
 
+//instance methods 
 UserSchema.methods.toJSON = function () {
     //just a way to make it easier to reason about "this"
     let user = this;
@@ -62,7 +63,27 @@ UserSchema.methods.generateAuthToken = function () {
             return token;
         })
 };
-//statics kind of like methods only creates a model method
+
+UserSchema.methods.removeToken = function (token) {
+    let user = this;
+    //remove any value on the array with a token
+    //property equal to what we just passed-in
+    //$pull is a mongoDB operator
+    //mongoose update() doesn't take a query - we already have the user
+    //we just pass in the update object
+    //the $pull operator get's set equal to that object
+    //return it to allow us to chain together our server.js call
+    return user.update({
+        $pull: {
+            tokens: { token }
+            // tokens: {
+            //     token: token
+            // }
+        }
+    })
+}
+
+//statics kind of like instance methods only creates a model method
 //instead of an instance. Instance methods get called with the indivudual
 //user document. Model methods get called with the Model User "this" binding
 UserSchema.statics.findByToken = function(token) {

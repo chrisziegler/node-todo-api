@@ -136,7 +136,20 @@ app.post('/users/login', (req, res) => {
     })
 });
 
+app.delete('/users/me/token', authenticate, (req, res) => {
+    //we have access to the user since they're logged-in
+    //this is an instance method in user.js w/token definde in authenticate.js
+    //ideally we get a promise back so we can chain on a then, and
+    //respond to user
+    req.user.removeToken(req.token).then(() => {
+        //we don't need any data back - just need to remove token
+        res.status(200).send()
+        //our 2nd callback to then can handle errors
+    }, () => {
+        res.status(400).send();
+    })
 
+})
 
 app.listen(port, () => {
     console.log(`Started up at port ${port}`);

@@ -6,7 +6,6 @@ var authenticate = (req, res, next) => {
         if (!user) {
             return Promise.reject();
         }
-        //once we have rew modified we can use it in each of our routes
         req.user = user;
         req.token = token;
         //middleware - always call next if you want code below it to run
