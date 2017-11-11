@@ -20,6 +20,11 @@ var Todo = mongoose.model('Todo', {
         type: Number,
         //with completed defaulting to false, should not have timestamp
         default: null
+    },
+    _creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+
     }
 });
 
