@@ -11,8 +11,8 @@ beforeEach(populateUsers);
 beforeEach(populateTodos);
 
 describe('POST /todos', () => {
-  it('should create a new todo', (done) => {
-    var text = 'Test todo text';
+  it('should create a new todo for user 1', (done) => {
+    let text = 'Test todo text';
 
     request(app)
       .post('/todos')
@@ -88,7 +88,7 @@ describe('GET /todos/:id', () => {
   });
 
   it('should return 404 if todo not found', (done) => {
-    var hexId = new ObjectID().toHexString();
+    let hexId = new ObjectID().toHexString();
 
     request(app)
       .get(`/todos/${hexId}`)
@@ -108,7 +108,7 @@ describe('GET /todos/:id', () => {
 
 describe('DELETE /todos/:id', () => {
   it('should remove a todo', (done) => {
-    var hexId = todos[1]._id.toHexString();
+    let hexId = todos[1]._id.toHexString();
 
     request(app)
       .delete(`/todos/${hexId}`)
@@ -130,7 +130,7 @@ describe('DELETE /todos/:id', () => {
   });
 
   it('should remove a todo', (done) => {
-    var hexId = todos[0]._id.toHexString();
+    let hexId = todos[0]._id.toHexString();
 
     request(app)
       .delete(`/todos/${hexId}`)
@@ -149,7 +149,7 @@ describe('DELETE /todos/:id', () => {
   });
 
   it('should return 404 if todo not found', (done) => {
-    var hexId = new ObjectID().toHexString();
+    let hexId = new ObjectID().toHexString();
 
     request(app)
       .delete(`/todos/${hexId}`)
@@ -169,8 +169,8 @@ describe('DELETE /todos/:id', () => {
 
 describe('PATCH /todos/:id', () => {
   it('should update the todo', (done) => {
-    var hexId = todos[0]._id.toHexString();
-    var text = 'This should be the new text';
+    let hexId = todos[0]._id.toHexString();
+    let text = 'This should be the new text';
 
     request(app)
       .patch(`/todos/${hexId}`)
@@ -189,8 +189,8 @@ describe('PATCH /todos/:id', () => {
   });
 
   it('should not update the todo created by other user', (done) => {
-    var hexId = todos[0]._id.toHexString();
-    var text = 'This should be the new text';
+    let hexId = todos[0]._id.toHexString();
+    let text = 'This should be the new text';
 
     request(app)
       .patch(`/todos/${hexId}`)
@@ -199,13 +199,15 @@ describe('PATCH /todos/:id', () => {
         completed: true,
         text
       })
+      //findOneAndUpdate doesn't find a todo (1st) with authenticated users id (2nd)
+      //and returns a 404
       .expect(404)
       .end(done);
   });
 
   it('should clear completedAt when todo is not completed', (done) => {
-    var hexId = todos[1]._id.toHexString();
-    var text = 'This should be the new text!!';
+    let hexId = todos[1]._id.toHexString();
+    let text = 'This should be the new text!!';
 
     request(app)
       .patch(`/todos/${hexId}`)
@@ -250,8 +252,8 @@ describe('GET /users/me', () => {
 
 describe('POST /users', () => {
   it('should create a user', (done) => {
-    var email = 'example@example.com';
-    var password = '123mnb!';
+    let email = 'example@example.com';
+    let password = '123mnb!';
 
     request(app)
       .post('/users')

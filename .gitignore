@@ -8,16 +8,8 @@
 *.swp
 *.vi
 *~
-*.sass-cache
+
 node_modules/
 bak
-app-env
-.tmp/
 server/bak
-
-# OS or Editor folders
-.DS_Store
-Thumbs.db
-.cache
-.project
-.settings
+server/config/config.json
