@@ -54,7 +54,7 @@ UserSchema.methods.generateAuthToken = function () {
     let access = 'auth';
     // will eventually take this secret out of the code and assign it a configuration
     // variable
-    let token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
+    let token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
     //update the local model
     user.tokens.push({access, token})
     // save it, return it to allow server.js to chain on this promise with a then
@@ -91,7 +91,7 @@ UserSchema.statics.findByToken = function(token) {
     var decoded;
 
     try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET);
+        decoded = jwt.verify(token, 'abc123');
     } catch (e) {
         return Promise.reject();
     }
