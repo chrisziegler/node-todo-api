@@ -21,6 +21,7 @@ app.post('/todos', authenticate, (req, res) => {
     _creator: req.user._id
   });
 
+
   todo.save().then((doc) => {
     res.send(doc);
   }, (e) => {
@@ -149,3 +150,5 @@ app.listen(port, () => {
 });
 
 module.exports = {app};
+
+//pre-authentication bak stored separate from repo for reference
