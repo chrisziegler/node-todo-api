@@ -10,7 +10,7 @@ if (env === 'development' || env === 'test') {
     //from config.json for the env (dev or test) set in envConfig
    Object.keys(envConfig).forEach((key) => {
     process.env[key] = envConfig[key];
-   })
+   });
 }
 
 //Old config JS for comparisson (nothing sensitive)
